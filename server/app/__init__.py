@@ -53,13 +53,13 @@ def submit_survey():
             id = str(img["_id"])
             answers[id] = v
 
-            if v == "seen":
+            if v["result"] == "seen":
                 total -= 1
                 img["correct"] = "seen"
                 results.append(img)
                 continue
 
-            if (img["type"] == "cg" and v == "cg") or (img["type"] == "photo" and v == "photo"):
+            if (img["type"] == "cg" and v["result"] == "cg") or (img["type"] == "photo" and v["result"] == "photo"):
                 correct += 1
                 cur_correct = "correct"
             else:

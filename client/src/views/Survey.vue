@@ -1,7 +1,7 @@
 <template>
 <div class="survey">
 <single-choice-question v-if="!metaDone && !done" :question="meta[current_meta].question" :answers="meta[current_meta].answers" @answered="handle_answered_meta"/>
-<image-question v-if="metaDone && !done" :imagehash="images[current_img]" @answered="handle_answered_image"/>
+<image-question v-if="metaDone && !done" :imagehash="images[current_img]._id" @answered="handle_answered_image"/>
 <done v-if="done" :correct="correct" :total="total" :results="results"></done>
 </div>
 </template>
@@ -29,15 +29,18 @@ export default{
       done: false,
       correct: 0,
       total: 0,
-      results: []
+      results: [],
+      timestart: null,
+      timeend: null
     }
   },
   mounted () {
     fetch('/api/').then(res => res.json()).then(res => { this.images = res })
+    this.timestart = new Date().toUTCString()
   },
   methods: {
     handle_answered_image: function (result) {
-      this.answers[this.images[this.current_img]] = result
+      this.answers[this.images[this.current_img]._id] = result
       if (this.current_img === this.images.length - 1) {
         this.submit_results()
         this.done = true
@@ -54,6 +57,8 @@ export default{
       }
     },
     submit_results: function () {
+      this.timeend = new Date().toUTCString()
+      this.answers['time'] = { start: this.timestart, end: this.timeend }
       fetch('/api/submit', { method: 'POST', body: JSON.stringify(this.answers) }).then(res => res.json()).then(json => { this.correct = json['correct']; this.total = json['total']; this.results = json['results'] })
     }
   }

@@ -16,6 +16,14 @@ export default{
   props: {
     imagehash: ''
   },
+  data: function () {
+    return {
+      start: null
+    }
+  },
+  mounted () {
+    this.start = new Date()
+  },
   computed: {
     url: function () {
       return '/api/images/' + this.imagehash
@@ -23,13 +31,16 @@ export default{
   },
   methods: {
     cg: function () {
-      this.$emit('answered', 'cg')
+      this.$emit('answered', { result: 'cg', duration: this.get_duration() })
     },
     photo: function () {
-      this.$emit('answered', 'photo')
+      this.$emit('answered', { result: 'photo', duration: this.get_duration() })
     },
     seen: function () {
-      this.$emit('answered', 'seen')
+      this.$emit('answered', { result: 'seen', duration: this.get_duration() })
+    },
+    get_duration () {
+      return (new Date().getTime() - this.start.getTime()) / 1000
     }
   }
 }
