@@ -6,7 +6,7 @@
         <hr/>
         <h2>You got {{correct}} out of {{total}} correct. That's {{correct/total*100}}%</h2>
         <table>
-            <tr v-for="e in results">
+            <tr v-for="e in results" :key="e._id">
                 <td class="type">{{e.type}}</td>
                 <td><img class="preview" :src="'/api/images/'+e._id"/></td>
                 <td>Title: {{e.title}}<br/>

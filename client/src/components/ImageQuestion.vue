@@ -24,6 +24,11 @@ export default{
   mounted () {
     this.start = new Date()
   },
+  watch: {
+    imagehash: function () {
+      this.start = new Date()
+    }
+  },
   computed: {
     url: function () {
       return '/api/images/' + this.imagehash
