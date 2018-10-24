@@ -3,6 +3,10 @@ import os
 import random
 import hashlib
 
+import json
+from bson.objectid import ObjectId
+import datetime
+
 from flask_pymongo import PyMongo
 
 app = Flask(__name__)
@@ -11,21 +15,24 @@ app.config.from_pyfile('config.py')
 
 mongo = PyMongo(app)
 
-cg_imgs = list(map(lambda e: os.path.join(os.path.abspath(
-    "./data/cg/"), e), os.listdir("./data/cg")))
-photo_imgs = list(map(lambda e: os.path.join(os.path.abspath(
-    "./data/photo/"), e), os.listdir("./data/photo")))
 
-img_dict = dict(map(lambda e: (hashlib.md5(
-    e.encode("utf-8")).hexdigest(), e), cg_imgs+photo_imgs))
+class JSONEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        if isinstance(o, (datetime.datetime, datetime.date)):
+            return o.isoformat()
+        return super(JSONEncoder, self).default(o)
 
 
 @app.route("/", methods=["GET"])
 def get_survey():
-    imgs = list(img_dict.keys())
+    cg_imgs = mongo.db.images.find({}, {})
+    imgs = list(cg_imgs)
     random.shuffle(imgs)
 
-    response = make_response(jsonify(imgs))
+    response = make_response(JSONEncoder().encode(imgs))
 
     return response
 
@@ -34,39 +41,47 @@ def get_survey():
 def submit_survey():
     json = request.get_json(force=True)
     answers = {}
-    results = {}
+    results = []
     correct = 0
+    total = mongo.db.images.count()
     for (k, v) in json.items():
-        path = img_dict.get(k)
+        ObjectId.is_valid(k)
 
-        if path is not None:
-            name = os.path.splitext(os.path.basename(path))[0]
-            answers[name] = v
+        if ObjectId.is_valid(k):
+            img = mongo.db.images.find_one({"_id": ObjectId(k)})
 
-            if ("/cg/" in path and v == "cg") or ("/photo/" in path and v == "photo"):
+            id = str(img["_id"])
+            answers[id] = v
+
+            if v == "seen":
+                total -= 1
+                img["correct"] = "seen"
+                results.append(img)
+                continue
+
+            if (img["type"] == "cg" and v == "cg") or (img["type"] == "photo" and v == "photo"):
                 correct += 1
-                results[name] = True
+                cur_correct = "correct"
             else:
-                results[name] = False
+                cur_correct = "wrong"
+
+            img["correct"] = cur_correct
+            results.append(img)
+
         else:
             answers[k] = v
 
     mongo.db.responses.insert_one(answers)
     response = make_response(
-        jsonify({"correct": correct, "total": len(img_dict), "results": results}))
+        JSONEncoder().encode({"correct": correct, "total": total, "results": results}))
     return response
 
 
-@app.route("/images/<string:hash>", methods=["GET"])
-def get_image(hash):
-    img = img_dict.get(hash)
+@app.route("/images/<string:id>", methods=["GET"])
+def get_image(id):
+    img = mongo.db.images.find_one({"_id": ObjectId(id)})
     if img is None:
         r = make_response()
         r.status_code = 404
         return r
-    return send_file(img_dict.get(hash), mimetype="image/jpg")
-
-
-@app.route("/images", methods=["GET"])
-def get_all_images():
-    pass
+    return send_file("../"+img["path"], mimetype="image/jpg")
