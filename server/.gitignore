@@ -1,0 +1,5 @@
+data/cg/*
+data/photo/*
+venv
+*.pyc
+__pycache__
