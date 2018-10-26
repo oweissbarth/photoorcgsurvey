@@ -1,12 +1,12 @@
 <template>
   <div v-if="imagehash">
     <h3>Is this a photo or computer graphics?</h3>
-    <img class="questionimage" :src="url"/>
+    <img class="questionimage" :src="url" @load="loaded()"/>
     <button type="button" class="saw-button" @click="seen">I have already seen this!</button>
 
     <div class="buttons">
-      <button type="button" class="cg-button" @click="cg">Computer graphics</button>
-      <button type="button" class="photo-button" @click="photo">Photo</button>
+      <button type="button" class="cg-button" @click="cg" ref="cgbutton">Computer graphics</button>
+      <button type="button" class="photo-button" @click="photo" ref="photobutton">Photo</button>
     </div>
   </div>
 </template>
@@ -36,17 +36,27 @@ export default{
   },
   methods: {
     cg: function () {
+      this.loading()
       this.$emit('answered', { result: 'cg', duration: this.get_duration() })
     },
     photo: function () {
+      this.loading()
       this.$emit('answered', { result: 'photo', duration: this.get_duration() })
     },
     seen: function () {
+      this.loading()
       this.$emit('answered', { result: 'seen', duration: this.get_duration() })
     },
     get_duration () {
       return (new Date().getTime() - this.start.getTime()) / 1000
-    }
+    },
+    loading: function(){
+     this.$refs.cgbutton.disabled = true
+     this.$refs.photobutton.disabled = true
+    },
+    loaded: function () {
+      this.$refs.cgbutton.disabled = false
+      this.$refs.photobutton.disabled = false
   }
 }
 </script>
