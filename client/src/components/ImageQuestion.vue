@@ -50,13 +50,14 @@ export default{
     get_duration () {
       return (new Date().getTime() - this.start.getTime()) / 1000
     },
-    loading: function(){
-     this.$refs.cgbutton.disabled = true
-     this.$refs.photobutton.disabled = true
+    loading: function () {
+      this.$refs.cgbutton.disabled = true
+      this.$refs.photobutton.disabled = true
     },
     loaded: function () {
       this.$refs.cgbutton.disabled = false
       this.$refs.photobutton.disabled = false
+    }
   }
 }
 </script>
@@ -78,6 +79,10 @@ export default{
     margin-right: 30px;
 
   float: right;
+}
+
+button:disabled{
+  background-color: grey;
 }
 
   .saw-button{
