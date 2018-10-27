@@ -1,5 +1,6 @@
 <template>
 <div class="survey">
+<progress :value="current_img" max="50"></progress>
 <single-choice-question v-if="!metaDone && !done" :question="meta[current_meta].question" :answers="meta[current_meta].answers" @answered="handle_answered_meta"/>
 <image-question v-if="metaDone && !done" :imagehash="images[current_img]._id" @answered="handle_answered_image"/>
 <done v-if="done" :correct="correct" :total="total" :results="results"></done>
@@ -18,7 +19,7 @@ export default{
   data: function () {
     return {
       meta: [
-        { tag: '3d-software', question: 'How often do you use 3D-Software (Blender, UE4, Modo, ZBrush, etc...)?', answers: ['Never', 'Once a month', 'Once a week', 'Multiple times a week', 'Everyday'] },
+        { tag: '3d-software', question: 'How often do you use 3D-graphics-software (Blender, UE4, Modo, ZBrush, etc...)?', answers: ['Never', 'Once a month', 'Once a week', 'Multiple times a week', 'Everyday'] },
         { tag: 'games', question: 'How much time do you spend per week playing computer/console games ', answers: ['less then 1h', '1-3h', '3-6h', '6-12h', 'more than 12h'] }
       ],
       current_meta: 0,
@@ -64,3 +65,20 @@ export default{
   }
 }
 </script>
+<style>
+progress{
+  appearance: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100vw;
+  color: transparent;
+  background: none;
+}
+
+progress::-webkit-progress-value{
+  background-color: firebrick;
+}
+
+</style>

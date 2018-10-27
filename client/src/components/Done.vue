@@ -11,7 +11,7 @@
                 <td><img class="preview" :src="'/api/images/'+e._id"/></td>
                 <td>Title: {{e.title}}<br/>
                     Author: {{e.author}}<br/>
-                    URL: <a _target="about:blank" :href="'http://'+e.url">{{e.url}}</a>
+                    URL: <a target="_blank" :href="e.url">{{e.url}}</a>
                 </td>
                 <td v-if="e.correct=='correct'" class="correct">
                     You got this one right.
