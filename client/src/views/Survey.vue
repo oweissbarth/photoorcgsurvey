@@ -32,10 +32,16 @@ export default{
       total: 0,
       results: [],
       timestart: null,
-      timeend: null
+      timeend: null,
+      ticket: null
     }
   },
   mounted () {
+    if (localStorage.ticket) {
+      this.ticket = localStorage.ticket
+    } else {
+      fetch('/api/ticket').then(res => res.json()).then(res => { this.ticket = res['ticket']; localStorage.ticket = res['ticket'] })
+    }
     fetch('/api/').then(res => res.json()).then(res => { this.images = res })
     this.timestart = new Date().toUTCString()
   },
@@ -60,6 +66,7 @@ export default{
     submit_results: function () {
       this.timeend = new Date().toUTCString()
       this.answers['time'] = { start: this.timestart, end: this.timeend }
+      this.answers['ticket'] = this.ticket
       fetch('/api/submit', { method: 'POST', body: JSON.stringify(this.answers) }).then(res => res.json()).then(json => { this.correct = json['correct']; this.total = json['total']; this.results = json['results'] })
     }
   }

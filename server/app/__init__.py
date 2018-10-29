@@ -1,6 +1,7 @@
 from flask import Flask, make_response, send_file, jsonify, request
 import os
 import random
+import string
 import hashlib
 
 import json
@@ -85,3 +86,13 @@ def get_image(id):
         r.status_code = 404
         return r
     return send_file("../"+img["path"], mimetype="image/jpg")
+
+
+@app.route("/ticket", methods=["GET"])
+def get_ticket():
+    chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
+
+    ticket = ''.join(random.choice(chars) for x in range(64))
+
+    r = make_response(jsonify({"ticket": ticket}))
+    return r
