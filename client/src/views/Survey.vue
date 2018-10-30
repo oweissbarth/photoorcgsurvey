@@ -1,6 +1,6 @@
 <template>
 <div class="survey">
-<progress :value="current_img" max="50"></progress>
+<progress :value="current_img" max="49"></progress>
 <single-choice-question v-if="!metaDone && !done" :question="meta[current_meta].question" :answers="meta[current_meta].answers" @answered="handle_answered_meta"/>
 <image-question v-if="metaDone && !done" :imagehash="images[current_img]._id" @answered="handle_answered_image"/>
 <done v-if="done" :correct="correct" :total="total" :results="results"></done>
